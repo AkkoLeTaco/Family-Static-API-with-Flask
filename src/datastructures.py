@@ -21,6 +21,9 @@ class FamilyStructure:
 
     def add_member(self, member):
         # fill this method and update the return
+        if "id" not in member:
+            member["id"] = self,
+            
         pass
 
     def delete_member(self, id):

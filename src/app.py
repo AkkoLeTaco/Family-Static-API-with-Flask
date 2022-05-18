@@ -38,6 +38,38 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+@app.route('/members/<int:member_id>', methods=['DELETE'])
+def delete_member(member_id):
+    member1 = request.get_json()
+    if member1 is None:
+        raise APIException('member not found', status_code=404)
+    db.session.delete(member1)
+    db.session.commit()
+    return f"The member was removed sucessfully", 200
+
+@app.route('/members/<int:member_id>', methods=['GET'])
+def get_member(member_id):
+    response_body = request.get_json()
+    jackson_family.add_member(response_body)
+    return jsonify(response_body), 200
+
+@app.route('/members', methods=['POST'])
+def add_member():
+    response_body = request.get_json()
+
+    if "first_name" not in response_body or response_body["first_name"] == "":
+        raise APIException('bad request, First Name needed', status_code=400)
+    if "last_name" not in response_body or response_body["last_name"] != "Jackson":
+        raise APIException('bad request, Last name need to be Jackson', status_code=400)
+    if "age" not in response_body or response_body[int("age")] <= 0:
+        raise APIException('bad request, Age needed', status_code=400)
+    if "lucky_numbers" not in response_body:
+        raise APIException('bad request, Lucky_numbers needed', status_code=400)
+        
+    new_member = FamilyStructure(response_body["last_name"])
+    jackson_family.add_member(response_body)
+    return jsonify(response_body), 200
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
