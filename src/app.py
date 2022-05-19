@@ -40,18 +40,18 @@ def handle_hello():
 
 @app.route('/members/<int:member_id>', methods=['DELETE'])
 def delete_member(member_id):
-    member1 = request.get_json()
-    if member1 is None:
-        raise APIException('member not found', status_code=404)
-    db.session.delete(member1)
-    db.session.commit()
-    return f"The member was removed sucessfully", 200
+
+    is_member = jackson_family.get_member(member_id)
+    if is_member == "Family member not fround":
+        raise APIException("user not found", 400)
+
+    family_delete = jackson_family.delete_member(member_id)
+    return "success", 200
 
 @app.route('/members/<int:member_id>', methods=['GET'])
 def get_member(member_id):
-    response_body = request.get_json()
-    jackson_family.add_member(response_body)
-    return jsonify(response_body), 200
+    family_member = jackson_family.get_member(member_id)
+    return jsonify(family_member), 200
 
 @app.route('/members', methods=['POST'])
 def add_member():
@@ -66,7 +66,6 @@ def add_member():
     if "lucky_numbers" not in response_body:
         raise APIException('bad request, Lucky_numbers needed', status_code=400)
         
-    new_member = FamilyStructure(response_body["last_name"])
     jackson_family.add_member(response_body)
     return jsonify(response_body), 200
 
